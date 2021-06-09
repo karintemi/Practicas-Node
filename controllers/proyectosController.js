@@ -47,7 +47,6 @@ exports.nuevoProyecto = async(req, res) => {
 
 exports.proyectoPorUrl = async(req, res, next) => {
   // res.send('Listo');
-  console.log("por url");
   const proyectosPromise = Proyectos.findAll();
   const proyectoPromise = Proyectos.findOne({
     where: {
@@ -69,7 +68,6 @@ exports.proyectoPorUrl = async(req, res, next) => {
   // res.send('OK');
 }
 exports.formularioEditar = async(req, res) => {
-  console.log("por formularioEditar");
   const proyectosPromise = Proyectos.findAll();
   const proyectoPromise = Proyectos.findOne({
     where: {
@@ -116,4 +114,16 @@ exports.actualizarProyecto = async(req, res) => {
     console.log(url);
     res.redirect('/');
   }
+}
+
+exports.eliminarProyecto = async(req, res, next) => {
+  console.log(req.params, req.query);
+
+  const {urlProyecto} = req.query;
+  const resultado = await Proyectos.destroy({where: {url: urlProyecto}});
+
+  if (!resultado) {
+    return next();
+  }
+  res.status(200).send('Proyecto eliminado correctamente')
 }

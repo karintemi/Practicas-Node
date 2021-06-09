@@ -3,7 +3,11 @@ import axios from 'axios';
 
 const btnEliminar = document.querySelector('#eliminar-proyecto');
 if (btnEliminar){
-  btnEliminar.addEventListener('click', () => {
+  btnEliminar.addEventListener('click', e => {
+    const urlProyecto = e.target.dataset.proyectoUrl;
+
+    console.log(urlProyecto);
+
     Swal.fire({
       title: 'Está seguro de borrar este proyecto?',
       text: "No podra revertir o deshacer esta acción!",
@@ -15,15 +19,31 @@ if (btnEliminar){
       cancelButtonText: 'No, Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire(
-          'Borrado!',
-          'El proyecto fue borrado.',
-          'success'
-        );
-        // Redireccionar al inicio
-        setTimeout(() => {
-          window.location.href = '/'
-        }, 3000);
+        // enviar petición a axios
+        const url = `${location.origin}/proyectos/${urlProyecto}`;
+        console.log(url);
+
+        axios.delete(url, {params: urlProyecto})
+          .then(function(respuesta){
+            console.log(respuesta);
+              Swal.fire(
+                'Proyecto Borrado!',
+                respuesta.data,
+                'success'
+              );
+
+              // Redireccionar al inicio
+              setTimeout(() => {
+                window.location.href = '/'
+              }, 3000);
+            })
+            .catch(() => {
+              Swal.fire({
+                type:'error',
+                title: 'Hubo un error',
+                text: 'No se pudo eliminar el proyecto'
+              })
+            });
       }
     })
   })
