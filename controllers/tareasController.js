@@ -4,7 +4,7 @@ const Tareas = require('../models/Tareas');
 exports.agregarTarea = async (req, res, next) => {
   console.log(req.params.url);
   // Obtengo proyecto actual
-  const proyecto = await Proyectos.findOnee({where: {url:req.params.url}});
+  const proyecto = await Proyectos.findOne({where: {url:req.params.url}});
   console.log(proyecto);
   console.log(req.body);
   // res.send('Enviado');
@@ -19,5 +19,5 @@ exports.agregarTarea = async (req, res, next) => {
     return next();
   }
   // redirecciono
-  res.redirect(`/proyectos/${req.params.url}`);
+  return res.redirect(`/proyectos/${req.params.url}`);
 }
