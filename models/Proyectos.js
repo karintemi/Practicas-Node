@@ -22,7 +22,4 @@ const Proyectos = db.define('proyectos', {
   }
 });
 
-// `sequelize.define` also returns the model
-console.log(Proyectos === db.models.Proyectos); // true
-
 module.exports = Proyectos;

@@ -1,8 +1,11 @@
 const Proyectos = require('../models/Proyectos');
+const Tareas = require('../models/Tareas');
 const slug = require('slug');
 
 exports.proyectosHome = async(req, res) => {
-  const proyectos = await Proyectos.findAll();
+  // console.log(res.locals.usuario);
+  const usuarioId = res.locals.usuario.id;
+  const proyectos = await Proyectos.findAll({where:{usuarioId}});
   // res.send('Index');
   res.render('index', {
     nombrePagina : 'Proyectos',
@@ -10,7 +13,8 @@ exports.proyectosHome = async(req, res) => {
   });
 };
 exports.formularioProyecto = async(req, res) => {
-  const proyectos = await Proyectos.findAll();
+  const usuarioId = res.locals.usuario.id;
+  const proyectos = await Proyectos.findAll({where:{usuarioId}});
 
   res.render('nuevoProyecto',{
     nombrePagina: 'Nuevo Proyecto',
@@ -18,7 +22,8 @@ exports.formularioProyecto = async(req, res) => {
   });
 };
 exports.nuevoProyecto = async(req, res) => {
-  const proyectos = await Proyectos.findAll();
+  const usuarioId = res.locals.usuario.id;
+  const proyectos = await Proyectos.findAll({where:{usuarioId}});
 
   // Enviar a la consolo la ingresado por el usuario
   // console.log(req.body);
@@ -36,25 +41,34 @@ exports.nuevoProyecto = async(req, res) => {
   }
   else {
     // insertar en la BBDD
-    const url = slug(nombre).toLowerCase();
-    await Proyectos.create({nombre, url});
-      // .then(() => console.log('Proyecto insertado correctamente'))
-      // .catch(error => console.log(error));
-    console.log(url);
+    const usuarioId = res.locals.usuario.id;
+    await Proyectos.create({nombre, usuarioId});
     res.redirect('/');
   }
 }
 
 exports.proyectoPorUrl = async(req, res, next) => {
-  // res.send('Listo');
-  const proyectosPromise = Proyectos.findAll();
+  const usuarioId = res.locals.usuario.id;
+  const proyectosPromise = Proyectos.findAll({where:{usuarioId}});
   const proyectoPromise = Proyectos.findOne({
     where: {
-      url: req.params.url
+      url: req.params.url,
+      usuarioId
     }
   });
   // Para ejecutar lo de arriba los convierto a promesas y sin await y ejecuto en paralelo
   const [proyectos, proyecto] = await Promise.all([proyectosPromise, proyectoPromise]);
+  // Traer tareas del proyecto
+  const tareas = await Tareas.findAll({
+    where: {
+      proyectoId : proyecto.id
+    },
+    // Lo que sigue es una especie de join de tareas con proyectos, ahora no lo necesitamos
+    // include: [
+    //   {model: Proyectos}
+    // ]
+  });
+  // console.log(tareas);
   if (!proyecto) {
     return next();
   }
@@ -62,16 +76,19 @@ exports.proyectoPorUrl = async(req, res, next) => {
   res.render('tareas', {
     nombrePagina : 'Tareas del Proyecto',
     proyecto,
-    proyectos
+    proyectos,
+    tareas
   });
   // console.log(proyecto);
   // res.send('OK');
 }
 exports.formularioEditar = async(req, res) => {
-  const proyectosPromise = Proyectos.findAll();
+  const usuarioId = res.locals.usuario.id;
+  const proyectosPromise = Proyectos.findAll({where:{usuarioId}});
   const proyectoPromise = Proyectos.findOne({
     where: {
-      id: req.params.id
+      id: req.params.id,
+      usuarioId
     }
   });
   // Para ejecutar lo de arriba los convierto a promesas y sin await y ejecuto en paralelo
@@ -86,7 +103,8 @@ exports.formularioEditar = async(req, res) => {
 }
 
 exports.actualizarProyecto = async(req, res) => {
-  const proyectos = await Proyectos.findAll();
+  const usuarioId = res.locals.usuario.id;
+  const proyectosPromise = await Proyectos.findAll({where:{usuarioId}});
 
   // Enviar a la consolo la ingresado por el usuario
   // console.log(req.body);
@@ -109,15 +127,11 @@ exports.actualizarProyecto = async(req, res) => {
       {nombre: nombre},
       {where: {id: req.params.id}}
     );
-      // .then(() => console.log('Proyecto insertado correctamente'))
-      // .catch(error => console.log(error));
-    console.log(url);
     res.redirect('/');
   }
 }
 
 exports.eliminarProyecto = async(req, res, next) => {
-  console.log(req.params, req.query);
 
   const {urlProyecto} = req.query;
   const resultado = await Proyectos.destroy({where: {url: urlProyecto}});
