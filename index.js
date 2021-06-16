@@ -7,6 +7,9 @@ const session= require('express-session');
 const cookieParser= require('cookie-parser');
 const passport = require('./config/passport');
 
+// importar variables de ambiente
+require('dotenv').config({path: 'variables.env'});
+
 const {check, validationResult} = require('express-validator');
 // helpers con las unciones necesarias
 const helpers = require('./helpers');
@@ -49,6 +52,10 @@ app.use((req, res, next) => {
   next();
 })
 app.use('/', routes());
-app.listen(3000);
 
-// require('./handlers/email');
+// Sewrvidor y puerto
+const host=process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || 3000;
+app.listen(port, host, () => {
+  console.log('El servidor está funcionando');
+});

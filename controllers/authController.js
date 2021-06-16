@@ -41,22 +41,22 @@ exports.enviarToken = async (req, res) =>{
   }
   // usuario existe, actualiza token y actualiza
   usuario.token = crypto.randomBytes(20).toString('hex');
-  usuario.expiracion = Date.now + 3600000;
-  usuario.save();
-  const resetUrl=`http://${req.header.host}/reestablecer/${usuario.token}`;
+  usuario.expiracion = Date.now() + 3600000;
+  await usuario.save();
+  const resetUrl=`http://${req.headers.host}/reestablecer/${usuario.token}`;
   // Enviar email con token
-  await enviarEmail({
+  await enviarEmail.enviar({
     usuario,
     subject: 'Reset Password',
     resetUrl,
-    archivo: 'reestablece-password'
+    archivo: 'reestablecer-password'
   });
   // terminar proceso de envio
   req.flash('correcto', 'Se envió un mensaje a tu correo');
   res.redirect('/iniciar-sesion');
 };
 
-exports.validarToken = async (rec, res) => {
+exports.validarToken = async (req, res) => {
   const usuario = await Usuarios.findOne({
     where: {
       token: req.params.token
@@ -74,7 +74,7 @@ exports.validarToken = async (rec, res) => {
   });
 }
 
-exports.actualizarPassword = async (rec, res) => {
+exports.actualizarPassword = async (req, res) => {
   // Verifica token valido y fecha de expiracion
   const usuario = await Usuarios.findOne({
     where: {
@@ -88,7 +88,7 @@ exports.actualizarPassword = async (rec, res) => {
     res.redirect('/reestablecer');
   }
   // Hashear el password
-  usuario.password = bcrypt.hashsSync(req.body.password, bcrypt.genSaltSync(10));
+  usuario.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
   usuario.token = null;
   usuario.expiracion = null;
   // guardo el nuevo password

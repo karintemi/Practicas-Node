@@ -4,8 +4,6 @@ const Tareas = require('../models/Tareas');
 exports.agregarTarea = async (req, res, next) => {
   // Obtengo proyecto actual
   const proyecto = await Proyectos.findOne({where: {url:req.params.url}});
-  // console.log(proyecto);
-  // console.log(req.body);
   // leer el valor del input
   const{tarea} = req.body;
   const estado = 0; // incomplet=0

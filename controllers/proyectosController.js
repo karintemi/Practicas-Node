@@ -3,10 +3,8 @@ const Tareas = require('../models/Tareas');
 const slug = require('slug');
 
 exports.proyectosHome = async(req, res) => {
-  // console.log(res.locals.usuario);
   const usuarioId = res.locals.usuario.id;
   const proyectos = await Proyectos.findAll({where:{usuarioId}});
-  // res.send('Index');
   res.render('index', {
     nombrePagina : 'Proyectos',
     proyectos
@@ -26,7 +24,6 @@ exports.nuevoProyecto = async(req, res) => {
   const proyectos = await Proyectos.findAll({where:{usuarioId}});
 
   // Enviar a la consolo la ingresado por el usuario
-  // console.log(req.body);
   const {nombre} = req.body;
   let errores = [];
   if (!nombre) {
@@ -68,7 +65,6 @@ exports.proyectoPorUrl = async(req, res, next) => {
     //   {model: Proyectos}
     // ]
   });
-  // console.log(tareas);
   if (!proyecto) {
     return next();
   }
@@ -79,8 +75,6 @@ exports.proyectoPorUrl = async(req, res, next) => {
     proyectos,
     tareas
   });
-  // console.log(proyecto);
-  // res.send('OK');
 }
 exports.formularioEditar = async(req, res) => {
   const usuarioId = res.locals.usuario.id;
@@ -107,7 +101,6 @@ exports.actualizarProyecto = async(req, res) => {
   const proyectosPromise = await Proyectos.findAll({where:{usuarioId}});
 
   // Enviar a la consolo la ingresado por el usuario
-  // console.log(req.body);
   const {nombre} = req.body;
   let errores = [];
   if (!nombre) {

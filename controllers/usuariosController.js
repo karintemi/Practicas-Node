@@ -18,25 +18,26 @@ exports.formIniciarSesion = (req, res) => {
 exports.crearCuenta = async (req, res) => {
   // Leer datos del usuario
   const {email, password} = req.body;
-
   try {
+    // crear cuenta
+    await Usuarios.create({
+      email, password
+    });
+
     // crear URl de confirmación
-    const confirmarUrl=`http://${req.header.host}/confirmar/${email}`;
+    const confirmarUrl=`http://${req.headers.host}/confirmar/${email}`;
     // crear el objeto de usuario
     usuario = {
       email, password
     }
     // crear email
-    await enviarEmail({
+    await enviarEmail.enviar({
       usuario,
       subject: 'Confirma tu cuenta UpTask',
       confirmarUrl,
       archivo: 'confirmar-cuenta'
     });
-    // crear cuenta
-    await Usuarios.create({
-      email, password
-    });
+
     // redirigir al usuario
     req.flash('correcto', 'Te enviamos un correo. Confirma tu cuenta');
     res.redirect('/iniciar-sesion');
@@ -59,7 +60,6 @@ exports.formReestablecerPassword = (req, res) => {
 
 // cambia el estado de una Cuenta
 exports.confirmarCuenta = async (req, res) => {
-
   const usuario = await Usuarios.findOne({
     where: {
       email: req.params.correo

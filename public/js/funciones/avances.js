@@ -20,6 +20,4 @@ export const actualizarAvance = () => {
       )
     }
   }
-
 }
-alert('tareas');
